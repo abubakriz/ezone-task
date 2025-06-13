@@ -6,6 +6,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselStatus,
 } from "@/shared/components/Carousel";
 import Image from "next/image";
 
@@ -28,6 +29,7 @@ export const ProductImages = ({ product }: { product: IProduct }) => {
       </CarouselContent>
       <CarouselPrevious />
       <CarouselNext />
+      <CarouselStatus />
     </Carousel>
   );
 };

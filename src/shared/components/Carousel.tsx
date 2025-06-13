@@ -1,13 +1,13 @@
 "use client";
 
-import * as React from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import * as React from "react";
 
-import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/Button";
+import { cn } from "@/shared/lib/utils";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -173,7 +173,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 
 function CarouselPrevious({
   className,
-  variant = "circle",
+  variant = "default",
   size = "icon",
   ...props
 }: React.ComponentProps<typeof Button>) {
@@ -185,9 +185,9 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        "srounded-full absolute z-10",
         orientation === "horizontal"
-          ? "top-1/2 right-4 -translate-y-1/2"
+          ? "top-1/2 right-2 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className,
       )}
@@ -195,7 +195,7 @@ function CarouselPrevious({
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowRight />
+      <ChevronRight className="size-16 stroke-blue-500" />
       <span className="sr-only">Previous slide</span>
     </Button>
   );
@@ -203,7 +203,7 @@ function CarouselPrevious({
 
 function CarouselNext({
   className,
-  variant = "circle",
+  variant = "default",
   size = "icon",
   ...props
 }: React.ComponentProps<typeof Button>) {
@@ -215,9 +215,9 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        "absolute z-10 rounded-full",
         orientation === "horizontal"
-          ? "top-1/2 left-4 -translate-y-1/2"
+          ? "top-1/2 left-2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
 
         className,
@@ -226,17 +226,62 @@ function CarouselNext({
       onClick={scrollNext}
       {...props}
     >
-      <ArrowLeft />
+      <ChevronLeft className="size-16 stroke-blue-500" />
       <span className="sr-only">Next slide</span>
     </Button>
   );
 }
 
+function CarouselStatus({
+  className,
+  variant = "default",
+  size = "icon",
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  const { api } = useCarousel();
+  const [progress, setProgress] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const handleScroll = () => {
+      setProgress(api.selectedScrollSnap());
+    };
+
+    return api.on("select", handleScroll).clear;
+  }, [api]);
+
+  if (api?.slideNodes().length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="absolute inset-0 my-2 flex items-end justify-center gap-1">
+      {api?.slideNodes().map((_, i) => (
+        <Button
+          {...props}
+          variant={variant}
+          size={size}
+          key={i}
+          className={cn("size-5 rounded-full bg-neutral-500", {
+            "bg-blue-500": progress == i,
+            className,
+          })}
+          onClick={() => api?.scrollTo(i)}
+        ></Button>
+      ))}
+    </div>
+  );
+}
+
 export {
-  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
   CarouselNext,
+  CarouselPrevious,
+  CarouselStatus,
+  type CarouselApi,
 };
